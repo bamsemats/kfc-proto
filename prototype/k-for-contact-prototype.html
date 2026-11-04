@@ -1,0 +1,2056 @@
+<!--
+  PROTOTYPE PLAN: Three radically different UI variants of the K for Contact web/PWA app (Variant A: Warm Community Pass, Variant B: Dual-Mode Civic Workspace, Variant C: Context-Adaptive Bento Hub), switchable via ?variant=A|B|C and a floating bottom bar.
+  THROWAAWAY PROTOTYPE — built per .agents/skills/prototype/UI.md
+-->
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#1e2a4a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="K for Contact" />
+  <link rel="manifest" href="manifest.json" />
+  <title>K for Contact — NewSeed App Family UI Prototype (?variant=A|B|C)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Montserrat:wght@500;600;700;800&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* === NewSeed Family Shared Tokens (Extracted from Primary Sources) === */
+      /* Katjing tokens (katjing.newseed.se) */
+      --katjing-bg: #faf9f5;
+      --katjing-surface: #f1f0e8;
+      --katjing-border: #deded2;
+      --katjing-forest: #4f6d32;
+      --katjing-forest-dark: #3b5324;
+      --katjing-gold: #e8c96e;
+      --katjing-mint: #b8cda3;
+      --katjing-sky: #c8d5dc;
+
+      /* Fritidsbidraget tokens (fritidsbidraget.se) */
+      --fb-canvas: #f9fafb;
+      --fb-royal: #003399;
+      --fb-navy: #001f3f;
+      --fb-slate-navy: #1e2a4a;
+      --fb-info-bg: #ebf5ff;
+      --fb-info-border: #cfe4ff;
+
+      /* K for Contact tokens (kforcontact.com & app.kforcontact.com) */
+      --kfc-cyan: #30a4dc;
+      --kfc-deep-cyan: #008cd3;
+      --kfc-indigo: #3e5dbc;
+      --kfc-violet: #7961aa;
+      --kfc-gradient: linear-gradient(125deg, #30a4dc 0%, #3e5dbc 55%, #7961aa 100%);
+      --kfc-club-gradient: linear-gradient(125deg, #4f6d32 0%, #2d6a4f 55%, #30a4dc 100%);
+
+      /* Semantic family tokens */
+      --sem-green-bg: #ecfdf5;
+      --sem-green-text: #15803d;
+      --sem-green-border: #bbf7d0;
+      --sem-amber-bg: #fffbeb;
+      --sem-amber-text: #b45309;
+      --sem-amber-border: #fde68a;
+      --sem-red-bg: #fef2f2;
+      --sem-red-text: #dc2626;
+      --sem-red-border: #fecaca;
+
+      /* Shadows from Katjing CSS */
+      --shadow-card: 0 1px 2px rgba(20, 24, 40, 0.06), 0 12px 32px -18px rgba(20, 24, 40, 0.28);
+      --shadow-lift: 0 2px 4px rgba(20, 24, 40, 0.08), 0 24px 48px -24px rgba(20, 24, 40, 0.38);
+
+      /* Typography */
+      --font-display: 'Bricolage Grotesque', 'Montserrat', system-ui, -apple-system, sans-serif;
+      --font-Geometric: 'Montserrat', system-ui, -apple-system, sans-serif;
+      --font-sans: 'Public Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      color: #18202c;
+      background: #eef1f6;
+      min-height: 100vh;
+      padding-bottom: 96px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button, input, select {
+      font-family: inherit;
+    }
+
+    /* === PROTOTYPE STATE & META HEADER (Rule 5: Surface the state) === */
+    .proto-telemetry-bar {
+      background: #0f172a;
+      color: #e2e8f0;
+      font-size: 12px;
+      padding: 8px 16px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      border-bottom: 1px solid #334155;
+      position: sticky;
+      top: 0;
+      z-index: 900;
+    }
+    .proto-telemetry-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .proto-badge {
+      background: #f59e0b;
+      color: #0f172a;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      padding: 2px 7px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+    .proto-state-pill {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      padding: 3px 8px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: #94a3b8;
+    }
+    .proto-state-pill strong {
+      color: #38bdf8;
+    }
+    .proto-controls-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .proto-ctrl-btn {
+      background: #1e293b;
+      color: #f8fafc;
+      border: 1px solid #475569;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s ease;
+    }
+    .proto-ctrl-btn:hover {
+      background: #334155;
+    }
+    .proto-ctrl-btn.active {
+      background: #30a4dc;
+      border-color: #38bdf8;
+      color: #ffffff;
+    }
+
+    /* === PWA PHONE SHELL SIMULATION === */
+    .viewport-wrapper {
+      width: 100%;
+      transition: all 0.25s ease;
+    }
+    .viewport-wrapper.pwa-mobile {
+      max-width: 430px;
+      margin: 24px auto;
+      border-radius: 46px;
+      border: 11px solid #0f172a;
+      box-shadow: 0 28px 70px rgba(15, 23, 42, 0.35), 0 0 0 2px #334155;
+      overflow: hidden;
+      background: #ffffff;
+      position: relative;
+    }
+    .pwa-status-bar {
+      display: none;
+      background: #0f172a;
+      color: #ffffff;
+      padding: 10px 24px 8px;
+      font-size: 12px;
+      font-weight: 700;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .viewport-wrapper.pwa-mobile .pwa-status-bar {
+      display: flex;
+    }
+    .pwa-notch {
+      width: 96px;
+      height: 18px;
+      background: #000;
+      border-radius: 99px;
+    }
+
+    /* === SHARED NEWSEED APP FAMILY SWITCHER BAR === */
+    .family-bar {
+      background: #ffffff;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 6px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #475569;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .family-apps {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .family-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: #64748b;
+      margin-right: 4px;
+    }
+    .family-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 11px;
+      text-decoration: none;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .family-chip.kfc {
+      background: #ebf5ff;
+      color: #005a9e;
+      border-color: #bae6fd;
+    }
+    .family-chip.katjing {
+      background: #f1f0e8;
+      color: #4f6d32;
+      border-color: #deded2;
+    }
+    .family-chip.fb {
+      background: #f1f5f9;
+      color: #003399;
+      border-color: #cbd5e1;
+    }
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    /* === KATJING MARKER UNDERLINE UTILITY === */
+    .marker-underline {
+      background: linear-gradient(180deg, transparent 62%, var(--katjing-gold) 62%);
+      padding: 0 3px;
+    }
+
+    /* === K LIVE BADGE === */
+    .k-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      border-radius: 6px;
+      background: var(--kfc-gradient);
+      color: #fff;
+      font-family: var(--font-Geometric);
+      font-weight: 800;
+      font-size: 11px;
+      box-shadow: 0 2px 6px rgba(48, 164, 220, 0.35);
+      flex-shrink: 0;
+    }
+
+    /* =====================================================================
+       VARIANT A: "WARM COMMUNITY PASS" (Katjing-First Mobile Wallet & Pass)
+       ===================================================================== */
+    .variant-a {
+      background: var(--katjing-bg);
+      color: #1e241b;
+      min-height: calc(100vh - 80px);
+      padding-bottom: 48px;
+    }
+    .va-header {
+      background: rgba(250, 249, 245, 0.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--katjing-border);
+      padding: 14px 20px;
+      position: sticky;
+      top: 37px;
+      z-index: 50;
+    }
+    .va-header-inner {
+      max-width: 1020px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .va-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .va-logo {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: var(--kfc-gradient);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 20px;
+      box-shadow: var(--shadow-card);
+      position: relative;
+    }
+    .va-logo::after {
+      content: '';
+      position: absolute;
+      top: -3px;
+      right: -3px;
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: var(--katjing-gold);
+      border: 2px solid var(--katjing-bg);
+    }
+    .va-title-block h1 {
+      font-family: var(--font-display);
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #182218;
+    }
+    .va-title-block p {
+      font-size: 11px;
+      color: #5a6552;
+      font-weight: 600;
+    }
+
+    .va-context-toggle {
+      display: inline-flex;
+      background: var(--katjing-surface);
+      border: 1px solid var(--katjing-border);
+      padding: 4px;
+      border-radius: 999px;
+      gap: 4px;
+    }
+    .va-ctx-btn {
+      border: none;
+      background: transparent;
+      padding: 7px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #4b5545;
+      cursor: pointer;
+      transition: all 0.16s ease;
+    }
+    .va-ctx-btn.active-club {
+      background: var(--katjing-forest);
+      color: var(--katjing-bg);
+      box-shadow: 0 2px 8px rgba(79, 109, 50, 0.3);
+    }
+    .va-ctx-btn.active-corp {
+      background: var(--fb-slate-navy);
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(30, 42, 74, 0.3);
+    }
+
+    .va-container {
+      max-width: 1020px;
+      margin: 0 auto;
+      padding: 24px 18px;
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 24px;
+    }
+    .viewport-wrapper.pwa-mobile .va-container {
+      grid-template-columns: 1fr;
+      padding: 16px 14px;
+    }
+    @media (max-width: 840px) {
+      .va-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .va-kicker {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--katjing-forest);
+      margin-bottom: 6px;
+    }
+    .va-kicker.corp {
+      color: var(--kfc-deep-cyan);
+    }
+
+    /* Wallet Pass Card */
+    .va-pass-card {
+      background: #ffffff;
+      border: 1px solid var(--katjing-border);
+      border-radius: 22px;
+      box-shadow: var(--shadow-lift);
+      overflow: hidden;
+      transition: all 0.2s ease;
+    }
+    .va-pass-banner {
+      padding: 22px 22px 18px;
+      color: #ffffff;
+      position: relative;
+      background: var(--kfc-club-gradient);
+    }
+    .va-pass-banner.corp {
+      background: var(--kfc-gradient);
+    }
+    .va-pass-top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .va-pass-pill {
+      background: rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 4px 11px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+    .va-pass-identity {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .va-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 18px;
+      background: #ffffff;
+      color: var(--fb-slate-navy);
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 3px solid rgba(255,255,255,0.85);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+      flex-shrink: 0;
+    }
+    .va-pass-identity h2 {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 800;
+      line-height: 1.15;
+    }
+    .va-pass-identity p {
+      font-size: 13px;
+      opacity: 0.92;
+      margin-top: 3px;
+    }
+    .va-pass-body {
+      padding: 20px 22px;
+    }
+    .va-status-strip {
+      background: var(--katjing-surface);
+      border: 1px solid var(--katjing-border);
+      border-radius: 14px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 16px;
+      font-size: 13px;
+    }
+    .va-field-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .va-field-chip {
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--katjing-border);
+      background: #faf9f5;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .va-field-chip.shared {
+      background: #ffffff;
+      border-color: var(--katjing-forest);
+      box-shadow: 0 2px 6px rgba(79, 109, 50, 0.08);
+    }
+    .va-field-chip.shared.corp {
+      border-color: var(--kfc-cyan);
+      box-shadow: 0 2px 6px rgba(48, 164, 220, 0.1);
+    }
+    .va-field-chip.hidden-field {
+      opacity: 0.52;
+      background: #f3f2ec;
+    }
+    .va-field-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #64705d;
+    }
+    .va-field-val {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1a2118;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Katjing-style QR Checkout / Share Box */
+    .va-qr-drawer {
+      background: var(--katjing-surface);
+      border: 1px solid var(--katjing-border);
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .va-qr-box {
+      width: 96px;
+      height: 96px;
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 8px;
+      border: 1px solid var(--katjing-border);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .katjing-btn {
+      border-radius: 25px;
+      padding: 10px 18px;
+      font-weight: 700;
+      font-size: 13px;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      transition: transform 0.15s, background 0.15s;
+    }
+    .katjing-btn:active {
+      transform: scale(0.98);
+    }
+    .katjing-btn.primary-club {
+      background: var(--katjing-forest);
+      color: var(--katjing-bg);
+    }
+    .katjing-btn.primary-corp {
+      background: var(--fb-slate-navy);
+      color: #ffffff;
+    }
+    .katjing-btn.secondary {
+      background: #ffffff;
+      color: #1e293b;
+      border: 1px solid var(--katjing-border);
+    }
+
+    /* Variant A Right Column: Circles & Revocation */
+    .va-section-card {
+      background: #ffffff;
+      border: 1px solid var(--katjing-border);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: var(--shadow-card);
+      margin-bottom: 18px;
+    }
+    .va-conn-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #f0efe6;
+      gap: 10px;
+    }
+    .va-conn-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    /* =====================================================================
+       VARIANT B: "DUAL-MODE CIVIC WORKSPACE" (Fritidsbidraget + Katjing Admin)
+       ===================================================================== */
+    .variant-b {
+      background: var(--fb-canvas);
+      min-height: calc(100vh - 80px);
+      display: grid;
+      grid-template-columns: 256px 1fr 340px;
+    }
+    .viewport-wrapper.pwa-mobile .variant-b {
+      grid-template-columns: 1fr;
+    }
+    @media (max-width: 1080px) {
+      .variant-b {
+        grid-template-columns: 220px 1fr;
+      }
+      .vb-inspector {
+        grid-column: 1 / -1;
+      }
+    }
+    @media (max-width: 760px) {
+      .variant-b {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .vb-sidebar {
+      background: var(--fb-navy);
+      color: #f8fafc;
+      padding: 22px 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border-right: 1px solid #0f2942;
+    }
+    .vb-brand-box {
+      padding: 4px 8px 18px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      margin-bottom: 16px;
+    }
+    .vb-brand-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .vb-micro-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: #93c5fd;
+      font-weight: 700;
+      margin-top: 6px;
+      display: block;
+    }
+    .vb-nav-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .vb-nav-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border-radius: 12px;
+      color: #cbd5e1;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      text-align: left;
+      transition: all 0.15s;
+    }
+    .vb-nav-item:hover {
+      background: rgba(255,255,255,0.07);
+      color: #ffffff;
+    }
+    .vb-nav-item.active {
+      background: var(--kfc-cyan);
+      color: #ffffff;
+      font-weight: 700;
+      box-shadow: 0 4px 12px rgba(48, 164, 220, 0.3);
+    }
+
+    .vb-main {
+      padding: 24px 28px;
+      overflow-x: auto;
+    }
+    .viewport-wrapper.pwa-mobile .vb-main {
+      padding: 16px 14px;
+    }
+    .vb-top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .vb-trust-callout {
+      background: var(--fb-info-bg);
+      border: 1px solid var(--fb-info-border);
+      border-radius: 16px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 20px;
+      color: #1e3a8a;
+      font-size: 13px;
+      flex-wrap: wrap;
+    }
+    .vb-kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+    .viewport-wrapper.pwa-mobile .vb-kpi-grid {
+      grid-template-columns: 1fr;
+    }
+    .vb-kpi-card {
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 16px 18px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    }
+    .vb-kpi-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #64748b;
+    }
+    .vb-kpi-value {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--fb-navy);
+      margin-top: 4px;
+      font-family: var(--font-Geometric);
+    }
+
+    .vb-table-card {
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      overflow: hidden;
+    }
+    .vb-table-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #f1f5f9;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .vb-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .vb-table th {
+      text-align: left;
+      padding: 11px 18px;
+      background: #f8fafc;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #64748b;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .vb-table td {
+      padding: 13px 18px;
+      border-bottom: 1px solid #f1f5f9;
+      vertical-align: middle;
+    }
+    .vb-inspector {
+      background: #ffffff;
+      border-left: 1px solid #e5e7eb;
+      padding: 22px 20px;
+    }
+
+    /* =====================================================================
+       VARIANT C: "CONTEXT-ADAPTIVE BENTO HUB" (NewSeed Design System 2.0)
+       ===================================================================== */
+    .variant-c {
+      background: #f4f6f9;
+      min-height: calc(100vh - 80px);
+      padding: 20px 20px 56px;
+    }
+    .vc-shell {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .vc-floating-nav {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 12px 18px;
+      box-shadow: var(--shadow-card);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .vc-bento-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 18px;
+    }
+    .vc-cell {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 24px;
+      padding: 22px;
+      box-shadow: var(--shadow-card);
+    }
+    .vc-span-7 { grid-column: span 7; }
+    .vc-span-5 { grid-column: span 5; }
+    .vc-span-6 { grid-column: span 6; }
+    .vc-span-12 { grid-column: span 12; }
+
+    .viewport-wrapper.pwa-mobile .vc-span-7,
+    .viewport-wrapper.pwa-mobile .vc-span-5,
+    .viewport-wrapper.pwa-mobile .vc-span-6 {
+      grid-column: span 12;
+    }
+    @media (max-width: 960px) {
+      .vc-span-7, .vc-span-5, .vc-span-6 {
+        grid-column: span 12;
+      }
+    }
+
+    /* Matrix Table in Variant C */
+    .vc-matrix {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 6px;
+      margin-top: 12px;
+    }
+    .vc-matrix th {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #64748b;
+      padding: 6px 10px;
+      text-align: center;
+    }
+    .vc-matrix th:first-child {
+      text-align: left;
+    }
+    .vc-matrix td {
+      background: #f8fafc;
+      padding: 10px 12px;
+      font-size: 13px;
+      border-top: 1px solid #e2e8f0;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .vc-matrix td:first-child {
+      border-left: 1px solid #e2e8f0;
+      border-radius: 12px 0 0 12px;
+      font-weight: 600;
+    }
+    .vc-matrix td:last-child {
+      border-right: 1px solid #e2e8f0;
+      border-radius: 0 12px 12px 0;
+    }
+    .vc-matrix-toggle {
+      width: 38px;
+      height: 22px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      position: relative;
+      transition: background 0.16s ease;
+      display: inline-block;
+    }
+    .vc-matrix-toggle.on-club {
+      background: var(--katjing-forest);
+    }
+    .vc-matrix-toggle.on-corp {
+      background: var(--kfc-cyan);
+    }
+    .vc-matrix-toggle.on-temp {
+      background: var(--kfc-violet);
+    }
+    .vc-matrix-toggle.off {
+      background: #cbd5e1;
+    }
+    .vc-matrix-toggle::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #ffffff;
+      transition: transform 0.16s ease;
+    }
+    .vc-matrix-toggle.on-club::after,
+    .vc-matrix-toggle.on-corp::after,
+    .vc-matrix-toggle.on-temp::after {
+      transform: translateX(16px);
+    }
+
+    /* =====================================================================
+       FLOATING BOTTOM-CENTRE SWITCHER (Required by .agents/skills/prototype/UI.md)
+       ===================================================================== */
+    .prototype-switcher {
+      position: fixed;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+      background: #0f172a;
+      color: #f8fafc;
+      border: 1px solid #334155;
+      border-radius: 999px;
+      padding: 6px 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.45), 0 0 0 1px rgba(255,255,255,0.08);
+      user-select: none;
+    }
+    .switcher-arrow {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 1px solid #334155;
+      background: #1e293b;
+      color: #f8fafc;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .switcher-arrow:hover {
+      background: #334155;
+    }
+    .switcher-arrow:active {
+      transform: scale(0.95);
+    }
+    .switcher-label-box {
+      padding: 0 8px;
+      text-align: center;
+      min-width: 245px;
+    }
+    .switcher-label-main {
+      font-size: 13px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: -0.01em;
+    }
+    .switcher-label-sub {
+      font-size: 10px;
+      color: #94a3b8;
+      font-family: var(--font-mono);
+    }
+    .switcher-dots {
+      display: flex;
+      gap: 4px;
+      padding-left: 4px;
+      border-left: 1px solid #334155;
+    }
+    .switcher-pill-btn {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 5px 9px;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    .switcher-pill-btn.active {
+      background: #38bdf8;
+      color: #0f172a;
+    }
+
+    /* Status & semantic pills */
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .chip-green {
+      background: var(--sem-green-bg);
+      color: var(--sem-green-text);
+      border: 1px solid var(--sem-green-border);
+    }
+    .chip-amber {
+      background: var(--sem-amber-bg);
+      color: var(--sem-amber-text);
+      border: 1px solid var(--sem-amber-border);
+    }
+    .chip-red {
+      background: var(--sem-red-bg);
+      color: var(--sem-red-text);
+      border: 1px solid var(--sem-red-border);
+    }
+    .chip-blue {
+      background: var(--fb-info-bg);
+      color: var(--fb-royal);
+      border: 1px solid var(--fb-info-border);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===================================================================
+       LIVE STATE TELEMETRY BAR (Rule 5 of .agents/skills/prototype/SKILL.md)
+       =================================================================== -->
+  <div class="proto-telemetry-bar" id="telemetry-bar"></div>
+
+  <!-- ===================================================================
+       SHARED NEWSEED FAMILY HEADER STRIP (Links K for Contact, Katjing, Fritidsbidraget)
+       =================================================================== -->
+  <div class="family-bar">
+    <div class="family-apps">
+      <span class="family-label">NewSeed App-familj:</span>
+      <span class="family-chip kfc" title="Aktiv app: K for Contact (Kontakt- & GDPR-nätverk)">
+        <span class="dot" style="background:#30a4dc"></span>
+        <strong>K for Contact</strong> (Kontakter &amp; Grupper)
+      </span>
+      <span class="family-chip katjing" onclick="window.triggerFamilyToast('Katjing Kiosk & Admin: Synkar kioskansvariga föräldrar & Swish-nummer direkt från din K for Contact-grupp!')" title="Klicka för att se koppling till Katjing">
+        <span class="dot" style="background:#4f6d32"></span>
+        Katjing (Kiosk &amp; Swish-kassa)
+      </span>
+      <span class="family-chip fb" onclick="window.triggerFamilyToast('Fritidsbidraget: Vårdnadshavare och föreningsadmin delar samma trygga NewSeed-identitet och föreningskod.')" title="Klicka för att se koppling till Fritidsbidraget">
+        <span class="dot" style="background:#003399"></span>
+        Fritidsbidraget (Föreningsstöd)
+      </span>
+    </div>
+    <div id="family-toast" style="font-size:11px; font-weight:600; color:#0f766e;">
+      🇪🇺 Data lagras i EU (AWS Irland) · 0 cookies · Du äger &amp; lånar ut dina uppgifter
+    </div>
+  </div>
+
+  <!-- ===================================================================
+       MAIN VIEWPORT CONTAINER (Supports Full Desktop OR Installed PWA Mobile Shell)
+       =================================================================== -->
+  <div id="viewport-wrapper" class="viewport-wrapper">
+    <div class="pwa-status-bar">
+      <span>09:41</span>
+      <div class="pwa-notch"></div>
+      <span>5G · 100% 🔋</span>
+    </div>
+    <main id="app-root"></main>
+  </div>
+
+  <!-- ===================================================================
+       FLOATING BOTTOM-CENTRE VARIANT SWITCHER (.agents/skills/prototype/UI.md)
+       =================================================================== -->
+  <nav class="prototype-switcher" aria-label="Prototype Variant Switcher">
+    <button class="switcher-arrow" id="btn-prev" title="Föregående variant (Vänsterpil)">←</button>
+    <div class="switcher-label-box">
+      <div class="switcher-label-main" id="switcher-title">A (Warm Community Pass)</div>
+      <div class="switcher-label-sub" id="switcher-subtitle">?variant=A · Katjing-inspirerad</div>
+    </div>
+    <button class="switcher-arrow" id="btn-next" title="Nästa variant (Högerpil)">→</button>
+    <div class="switcher-dots">
+      <button class="switcher-pill-btn" data-variant="A">A</button>
+      <button class="switcher-pill-btn" data-variant="B">B</button>
+      <button class="switcher-pill-btn" data-variant="C">C</button>
+    </div>
+  </nav>
+
+  <script>
+    // =========================================================================
+    // PROTOTYPE IN-MEMORY STATE (No persistence by default per SKILL.md)
+    // =========================================================================
+    const VARIANTS = {
+      A: {
+        key: 'A',
+        name: 'Warm Community Pass',
+        inspiration: 'Katjing-first (#faf9f5 + #4f6d32 + #30a4dc) · Mobil plånbok & pass-kortlek'
+      },
+      B: {
+        key: 'B',
+        name: 'Dual-Mode Civic Workspace',
+        inspiration: 'Fritidsbidraget + Katjing Admin (#001f3f + #003399 + #30a4dc) · Split-pane register & QR-inspektör'
+      },
+      C: {
+        key: 'C',
+        name: 'Context-Adaptive Bento Hub',
+        inspiration: 'Unified NewSeed 2.0 Design System · Bento-grid med live GDPR-filtermatris'
+      }
+    };
+
+    const FIELDS = [
+      { id: 'phone', label: 'Mobilnummer', value: '070-314 15 92', icon: '📱' },
+      { id: 'role', label: 'Lagroll / Barn', value: 'Förälder (Leo, P12) & Kiosk', icon: '⚽' },
+      { id: 'privateEmail', label: 'Privat e-post', value: 'mats.lind@example.se', icon: '✉️' },
+      { id: 'workEmail', label: 'Arbetsmejl', value: 'mats@newseed.se', icon: '🏢' },
+      { id: 'companyTitle', label: 'Bolag & Titel', value: 'NewSeed IT Solutions · Utvecklare', icon: '💼' },
+      { id: 'linkedin', label: 'LinkedIn / GitHub', value: 'linkedin.com/in/mats-dev', icon: '🔗' },
+      { id: 'address', label: 'Hemadress', value: 'Stora Södergatan 12, Lund', icon: '🏠' }
+    ];
+
+    const state = {
+      variant: new URLSearchParams(window.location.search).get('variant')?.toUpperCase() || 'A',
+      viewportMode: 'responsive', // 'responsive' | 'pwa-mobile'
+      activeContext: 'club',      // 'club' (Fotbollslaget / Förening) | 'corporate' (Konferens / Företag)
+      availability: 'available',  // 'available' | 'match' | 'conference' | 'vacation'
+      shareExpiry: '24h',         // '1h' | '24h' | '7d' | 'permanent'
+      singleUseQr: false,
+      lastAction: 'Initierade prototyp',
+      // Per-context shared field filters (represents K for Contact GET/POST /v1/filter/)
+      filters: {
+        club: {
+          phone: true,
+          role: true,
+          privateEmail: true,
+          workEmail: false,
+          companyTitle: false,
+          linkedin: false,
+          address: true
+        },
+        corporate: {
+          phone: true,
+          role: false,
+          privateEmail: false,
+          workEmail: true,
+          companyTitle: true,
+          linkedin: true,
+          address: false
+        },
+        temp: {
+          phone: true,
+          role: false,
+          privateEmail: false,
+          workEmail: true,
+          companyTitle: true,
+          linkedin: false,
+          address: false
+        }
+      },
+      connections: [
+        {
+          id: 'c1',
+          name: 'Anders Svensson',
+          role: 'Huvudtränare · Lunds BK P12',
+          category: 'club',
+          filterUsed: 'club',
+          channel: 'SMS / Telefon',
+          syncedWith: 'Grupp: Lunds BK P12 (42 medlemmar)',
+          status: 'active',
+          badge: '⚽ Lagledare'
+        },
+        {
+          id: 'c2',
+          name: 'Maria Lindqvist',
+          role: 'Kiosk- & Cupansvarig · Lunds BK',
+          category: 'club',
+          filterUsed: 'club',
+          channel: 'Swish / Katjing-kiosk',
+          syncedWith: 'Katjing Kiosk-grupp',
+          status: 'active',
+          badge: '🌭 Katjing-ansvarig'
+        },
+        {
+          id: 'c3',
+          name: 'Kansliet · Lunds BK',
+          role: 'Medlemsregister & Fritidsbidraget',
+          category: 'club',
+          filterUsed: 'club',
+          channel: 'E-post',
+          syncedWith: 'Föreningskod: LUND2026',
+          status: 'active',
+          badge: '🏛️ Föreningsadmin'
+        },
+        {
+          id: 'c4',
+          name: 'Erik Nyström',
+          role: 'CTO · PolarCloud Nordic AB',
+          category: 'corporate',
+          filterUsed: 'corporate',
+          channel: 'LinkedIn / E-post',
+          syncedWith: 'Skannad på Øredev / Techarenan',
+          status: 'active',
+          badge: '💼 Konferens'
+        },
+        {
+          id: 'c5',
+          name: 'Sara Bergström',
+          role: ' Head of Partnerships · GreenVolt SE',
+          category: 'corporate',
+          filterUsed: 'temp',
+          channel: 'Arbetsmejl',
+          syncedWith: 'Tillfällig QR-delning (Utgår om 18h)',
+          status: 'temp',
+          badge: '⏱️ 18h kvar'
+        }
+      ]
+    };
+
+    if (!VARIANTS[state.variant]) {
+      state.variant = 'A';
+    }
+
+    const STATUS_MAP = {
+      available: { label: '🟢 Tillgänglig (Svarar på SMS & samtal)', note: 'Nåbar som vanligt' },
+      match: { label: '⚽ På fotbollsmatch / Kioskpass (Svarar på SMS)', note: 'Vid sidlinjen 17:00–19:30' },
+      conference: { label: '💼 På konferens (Öppen för kaffe & nätverkande)', note: 'Monter B14 · Tech Summit' },
+      vacation: { label: '🌴 Frånvarande / Semester (Out of Office)', note: 'Tillbaka måndag — endast brådskande' }
+    };
+
+    // =========================================================================
+    // STATE MUTATION HELPERS (All update UI & surface state in telemetry bar)
+    // =========================================================================
+    window.setVariant = function(v) {
+      if (!VARIANTS[v]) return;
+      state.variant = v;
+      state.lastAction = `Bytte UI-variant till ${v} (${VARIANTS[v].name})`;
+      const url = new URL(window.location.href);
+      url.searchParams.set('variant', v);
+      window.history.replaceState({}, '', url);
+      renderAll();
+    };
+
+    window.setContextMode = function(ctx) {
+      state.activeContext = ctx;
+      state.lastAction = `Bytte aktiv kontext till ${ctx === 'club' ? '⚽ Förening / Fotbollslaget' : '💼 Företag / Konferens'}`;
+      renderAll();
+    };
+
+    window.toggleViewportMode = function() {
+      state.viewportMode = state.viewportMode === 'responsive' ? 'pwa-mobile' : 'responsive';
+      state.lastAction = `Bytte vy till ${state.viewportMode === 'pwa-mobile' ? '📱 Installerad mobil PWA-vy' : '🖥️ Responsiv webbvy'}`;
+      renderAll();
+    };
+
+    window.toggleFieldPermission = function(profileKey, fieldId) {
+      state.filters[profileKey][fieldId] = !state.filters[profileKey][fieldId];
+      const enabled = state.filters[profileKey][fieldId];
+      state.lastAction = `${enabled ? 'Delade' : 'Dolde'} fältet "${fieldId}" i profil "${profileKey}"`;
+      renderAll();
+    };
+
+    window.cycleAvailability = function() {
+      const keys = Object.keys(STATUS_MAP);
+      const nextIdx = (keys.indexOf(state.availability) + 1) % keys.length;
+      state.availability = keys[nextIdx];
+      state.lastAction = `Uppdaterade live-status till "${STATUS_MAP[state.availability].note}"`;
+      renderAll();
+    };
+
+    window.toggleConnectionRevoke = function(connId) {
+      const conn = state.connections.find(c => c.id === connId);
+      if (!conn) return;
+      conn.status = conn.status === 'revoked' ? 'active' : 'revoked';
+      state.lastAction = conn.status === 'revoked'
+        ? `🛑 Återkallade åtkomst för ${conn.name} (Data raderad hos mottagaren)`
+        : `✅ Återaktiverade delning med ${conn.name}`;
+      renderAll();
+    };
+
+    window.setShareExpiry = function(exp) {
+      state.shareExpiry = exp;
+      state.lastAction = `Satte QR-länkens giltighetstid till ${exp}`;
+      renderAll();
+    };
+
+    window.toggleSingleUse = function() {
+      state.singleUseQr = !state.singleUseQr;
+      state.lastAction = `Engångs-QR (Single scan): ${state.singleUseQr ? 'PÅ' : 'AV'}`;
+      renderAll();
+    };
+
+    window.triggerFamilyToast = function(msg) {
+      const el = document.getElementById('family-toast');
+      if (el) {
+        el.textContent = `🔗 ${msg}`;
+        el.style.color = '#003399';
+      }
+      state.lastAction = msg;
+      renderTelemetry();
+    };
+
+    // =========================================================================
+    // SVG QR CODE GENERATOR (Deterministic visual QR for active state)
+    // =========================================================================
+    function renderQrSvg(accentColor = '#1e2a4a') {
+      const seed = state.activeContext === 'club' ? 3 : 7;
+      let rects = '';
+      for (let r = 0; r < 7; r++) {
+        for (let c = 0; c < 7; c++) {
+          const isCorner = (r < 2 && c < 2) || (r < 2 && c > 4) || (r > 4 && c < 2);
+          if (isCorner || ((r * 7 + c + seed) % 2 === 0)) {
+            rects += `<rect x="${12 + c * 11}" y="${12 + r * 11}" width="8.5" height="8.5" rx="2" fill="${isCorner ? accentColor : '#1e293b'}" />`;
+          }
+        }
+      }
+      return `
+        <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          <rect width="100" height="100" rx="10" fill="#ffffff"/>
+          ${rects}
+          <rect x="37" y="37" width="26" height="26" rx="7" fill="${accentColor}"/>
+          <text x="50" y="55" text-anchor="middle" fill="#ffffff" font-family="Montserrat, sans-serif" font-weight="800" font-size="16">K</text>
+        </svg>
+      `;
+    }
+
+    // =========================================================================
+    // RENDER TELEMETRY BAR (Surfaces live state on every action/switch)
+    // =========================================================================
+    function renderTelemetry() {
+      const bar = document.getElementById('telemetry-bar');
+      const activeFilter = state.filters[state.activeContext];
+      const sharedCount = Object.values(activeFilter).filter(Boolean).length;
+      const activeConns = state.connections.filter(c => c.status !== 'revoked').length;
+
+      bar.innerHTML = `
+        <div class="proto-telemetry-left">
+          <span class="proto-badge">UI Prototype</span>
+          <span class="proto-state-pill">Variant: <strong>${state.variant} (${VARIANTS[state.variant].name})</strong></span>
+          <span class="proto-state-pill">Kontext: <strong>${state.activeContext === 'club' ? '⚽ Förening' : '💼 Företag'}</strong></span>
+          <span class="proto-state-pill">Delade fält: <strong>${sharedCount}/${FIELDS.length}</strong></span>
+          <span class="proto-state-pill">Aktiva kopplingar: <strong>${activeConns}/${state.connections.length}</strong></span>
+          <span class="proto-state-pill">Senaste händelse: <strong>${state.lastAction}</strong></span>
+        </div>
+        <div class="proto-controls-right">
+          <button class="proto-ctrl-btn ${state.viewportMode === 'pwa-mobile' ? 'active' : ''}" onclick="window.toggleViewportMode()">
+            ${state.viewportMode === 'pwa-mobile' ? '📱 PWA Mobilskal: PÅ' : '🖥️ Växla till Mobil PWA-vy'}
+          </button>
+        </div>
+      `;
+    }
+
+    // =========================================================================
+    // VARIANT A: "WARM COMMUNITY PASS" (Katjing-Inspired Wallet & Pass Stack)
+    // =========================================================================
+    function renderVariantA() {
+      const isClub = state.activeContext === 'club';
+      const activeFilter = state.filters[state.activeContext];
+      const sharedCount = Object.values(activeFilter).filter(Boolean).length;
+      const statusObj = STATUS_MAP[state.availability];
+
+      const fieldsHtml = FIELDS.map(f => {
+        const isShared = activeFilter[f.id];
+        return `
+          <div class="va-field-chip ${isShared ? 'shared' : 'hidden-field'} ${!isClub ? 'corp' : ''}"
+               onclick="window.toggleFieldPermission('${state.activeContext}', '${f.id}')"
+               title="Klicka för att ${isShared ? 'dölja' : 'dela'} i detta kort">
+            <div class="va-field-top">
+              <span>${f.icon} ${f.label}</span>
+              <span style="color:${isShared ? (isClub ? '#4f6d32' : '#008cd3') : '#94a3b8'}">
+                ${isShared ? '● DELAS' : '○ DOLD'}
+              </span>
+            </div>
+            <div class="va-field-val">${f.value}</div>
+          </div>
+        `;
+      }).join('');
+
+      const connectionsHtml = state.connections.map(c => {
+        const revoked = c.status === 'revoked';
+        return `
+          <div class="va-conn-row" style="${revoked ? 'opacity:0.55' : ''}">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span class="k-badge" style="${c.category === 'club' ? 'background:var(--kfc-club-gradient)' : ''}">K</span>
+              <div>
+                <div style="font-weight:700; font-size:14px; display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                  ${c.name}
+                  <span class="chip ${revoked ? 'chip-red' : (c.status === 'temp' ? 'chip-amber' : 'chip-green')}">
+                    ${revoked ? 'Återkallad' : c.badge}
+                  </span>
+                </div>
+                <div style="font-size:12px; color:#5a6552;">${c.role} · <em>${c.syncedWith}</em></div>
+              </div>
+            </div>
+            <button class="katjing-btn secondary" style="padding:6px 12px; font-size:11px; color:${revoked ? '#15803d' : '#dc2626'}; border-color:${revoked ? '#bbf7d0' : '#fecaca'}"
+                    onclick="window.toggleConnectionRevoke('${c.id}')">
+              ${revoked ? 'Återställ' : 'Återkalla'}
+            </button>
+          </div>
+        `;
+      }).join('');
+
+      return `
+        <div class="variant-a">
+          <header class="va-header">
+            <div class="va-header-inner">
+              <div class="va-brand">
+                <div class="va-logo">K</div>
+                <div class="va-title-block">
+                  <h1>K for Contact</h1>
+                  <p>Variant A · Warm Community Pass (Katjing + K for Contact DNA)</p>
+                </div>
+              </div>
+
+              <div class="va-context-toggle" role="tablist" aria-label="Välj profilkontext">
+                <button class="va-ctx-btn ${isClub ? 'active-club' : ''}" onclick="window.setContextMode('club')">
+                  ⚽ Förening &amp; Förälder
+                </button>
+                <button class="va-ctx-btn ${!isClub ? 'active-corp' : ''}" onclick="window.setContextMode('corporate')">
+                  💼 Företag &amp; Konferens
+                </button>
+              </div>
+            </div>
+          </header>
+
+          <div class="va-container">
+            <!-- LEFT COLUMN: WALLET IDENTITY PASS & QR SHARE -->
+            <div>
+              <div class="va-kicker ${!isClub ? 'corp' : ''}">
+                ${isClub ? 'FÖRENINGSKORT · LUNDS BK P12' : 'AFFÄRSKORT · TECH SUMMIT & B2B'}
+              </div>
+              <h2 style="font-family:var(--font-display); font-size:26px; font-weight:800; margin-bottom:14px; letter-spacing:-0.02em;">
+                Du lånar ut <span class="marker-underline">${sharedCount} av ${FIELDS.length} uppgifter</span> i denna vy
+              </h2>
+
+              <div class="va-pass-card">
+                <div class="va-pass-banner ${!isClub ? 'corp' : ''}">
+                  <div class="va-pass-top-row">
+                    <span class="va-pass-pill">
+                      ${isClub ? '⚽ Lunds BK P12 · Verifierad förälder' : '💼 NewSeed IT Solutions · Verifierad profil'}
+                    </span>
+                    <span class="va-pass-pill">🔄 Live-synkad (K)</span>
+                  </div>
+                  <div class="va-pass-identity">
+                    <div class="va-avatar">ML</div>
+                    <div>
+                      <h2>Mats Lind</h2>
+                      <p>${isClub ? 'Förälder till Leo (P12) · Kiosk- & Skjutsgrupp' : 'Fullstack Developer · NewSeed IT Solutions AB'}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="va-pass-body">
+                  <!-- Status Strip -->
+                  <div class="va-status-strip">
+                    <div>
+                      <div style="font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.1em; color:#64705d;">
+                        LIVE STATUS / FRÅNVAROMEDDELANDE
+                      </div>
+                      <div style="font-weight:700; margin-top:2px;">${statusObj.label}</div>
+                    </div>
+                    <button class="katjing-btn secondary" style="padding:6px 12px; font-size:11px;" onclick="window.cycleAvailability()">
+                      Byt status ↻
+                    </button>
+                  </div>
+
+                  <div style="font-size:12px; font-weight:700; color:#4b5545; margin-bottom:8px; display:flex; justify-content:space-between;">
+                    <span>Klicka på ett fält för att styra vad ${isClub ? 'fotbollslaget' : 'affärskontakter'} ser:</span>
+                    <span style="font-family:var(--font-mono); font-size:11px;">Filter: ${isClub ? 'Fotbollslaget_P12' : 'Arbetsprofil_B2B'}</span>
+                  </div>
+
+                  <div class="va-field-grid">
+                    ${fieldsHtml}
+                  </div>
+
+                  <!-- Katjing-style QR Checkout/Share Box -->
+                  <div class="va-qr-drawer">
+                    <div class="va-qr-box">
+                      ${renderQrSvg(isClub ? '#4f6d32' : '#30a4dc')}
+                    </div>
+                    <div style="flex:1;">
+                      <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px; flex-wrap:wrap;">
+                        <span class="chip ${state.shareExpiry === 'permanent' ? 'chip-green' : 'chip-amber'}">
+                          ⏱️ Utgår: ${state.shareExpiry}
+                        </span>
+                        ${state.singleUseQr ? '<span class="chip chip-blue">1️⃣ Engångsskanning</span>' : ''}
+                      </div>
+                      <div style="font-weight:800; font-size:15px; font-family:var(--font-display);">
+                        ${isClub ? 'Dela med föräldrar vid sidlinjen' : 'Skanna för visitkort & vCard (.vcf)'}
+                      </div>
+                      <p style="font-size:12px; color:#5a6552; margin:3px 0 10px;">
+                        Mottagaren behöver inte ens ha appen installerad för att spara eller verifiera.
+                      </p>
+                      <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                        <button class="katjing-btn ${isClub ? 'primary-club' : 'primary-corp'}" onclick="window.setShareExpiry(state.shareExpiry === '24h' ? '1h' : '24h')">
+                          Giltighet: ${state.shareExpiry} ▾
+                        </button>
+                        <button class="katjing-btn secondary" onclick="window.toggleSingleUse()">
+                          ${state.singleUseQr ? '✓ Engångs-QR' : 'Engångs-QR'}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- RIGHT COLUMN: GROUPS, FAMILY INTEGRATION & GDPR CONTROL -->
+            <div>
+              <div class="va-kicker ${!isClub ? 'corp' : ''}">GRUPPER &amp; TILLFÄLLIGA DELNINGAR</div>
+              <h2 style="font-family:var(--font-display); font-size:26px; font-weight:800; margin-bottom:14px; letter-spacing:-0.02em;">
+                Vem har tillgång till dina uppgifter?
+              </h2>
+
+              <div class="va-section-card">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                  <div>
+                    <h3 style="font-family:var(--font-display); font-size:17px; font-weight:800;">
+                      Aktiva kopplingar &amp; Grupper
+                    </h3>
+                    <p style="font-size:12px; color:#5a6552;">
+                      Om du ändrar ditt nummer uppdateras det automatiskt hos alla med <strong>K</strong>-symbolen.
+                    </p>
+                  </div>
+                </div>
+                ${connectionsHtml}
+              </div>
+
+              <!-- Family Connection Callout (Katjing + Fritidsbidraget) -->
+              <div class="va-section-card" style="background:var(--katjing-surface); border-color:var(--katjing-border);">
+                <div style="font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.15em; color:var(--katjing-forest); margin-bottom:6px;">
+                  NEWSEED FÖRENINGSEKOSYSTEM
+                </div>
+                <h3 style="font-family:var(--font-display); font-size:17px; font-weight:800; margin-bottom:8px;">
+                  Samma formspråk som Katjing &amp; Fritidsbidraget
+                </h3>
+                <p style="font-size:13px; color:#3f4a38; line-height:1.5; margin-bottom:12px;">
+                  I <strong>Variant A</strong> lånar K for Contact Katjings varma, taktila bakgrundstoner (<code>#faf9f5</code> / <code>#f1f0e8</code>), <code>Bricolage Grotesque</code>-typografi och runda knappar (<code>25px</code>), men växlar sömlöst till Fritidsbidragets och K for Contacts seriösa marinblå/cyan-palett i företagsprofilen.
+                </p>
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                  <span class="chip chip-green">✓ Installerbart som iOS/Android PWA</span>
+                  <span class="chip chip-blue">✓ Exporteffekt: Excel (.xlsx) &amp; vCard (.vcf)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // =========================================================================
+    // VARIANT B: "DUAL-MODE CIVIC WORKSPACE" (Fritidsbidraget + Katjing Admin)
+    // =========================================================================
+    function renderVariantB() {
+      const isClub = state.activeContext === 'club';
+      const activeFilter = state.filters[state.activeContext];
+      const sharedCount = Object.values(activeFilter).filter(Boolean).length;
+      const activeConns = state.connections.filter(c => c.status !== 'revoked').length;
+
+      const rowsHtml = state.connections.map(c => {
+        const revoked = c.status === 'revoked';
+        return `
+          <tr style="${revoked ? 'opacity:0.5; background:#fef2f2;' : ''}">
+            <td>
+              <div style="display:flex; align-items:center; gap:10px;">
+                <span class="k-badge">K</span>
+                <div>
+                  <div style="font-weight:700; color:#0f172a;">${c.name}</div>
+                  <div style="font-size:12px; color:#64748b;">${c.role}</div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="chip ${c.category === 'club' ? 'chip-green' : 'chip-blue'}">
+                ${c.category === 'club' ? '⚽ Fotbollslaget P12' : '💼 Arbetsprofil B2B'}
+              </span>
+            </td>
+            <td style="font-family:var(--font-mono); font-size:12px; color:#334155;">
+              ${c.syncedWith}
+            </td>
+            <td>
+              <span class="chip ${revoked ? 'chip-red' : (c.status === 'temp' ? 'chip-amber' : 'chip-green')}">
+                ${revoked ? 'Återkallad' : c.badge}
+              </span>
+            </td>
+            <td style="text-align:right;">
+              <button class="katjing-btn secondary" style="padding:5px 12px; font-size:11px; border-radius:10px; color:${revoked ? '#15803d' : '#dc2626'}"
+                      onclick="window.toggleConnectionRevoke('${c.id}')">
+                ${revoked ? 'Återaktivera' : 'Återkalla (GDPR)'}
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      const inspectorFieldsHtml = FIELDS.map(f => {
+        const isShared = activeFilter[f.id];
+        return `
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; border-radius:10px; background:${isShared ? '#f0f7ff' : '#f8fafc'}; border:1px solid ${isShared ? '#bae6fd' : '#e2e8f0'}; margin-bottom:6px; cursor:pointer;"
+               onclick="window.toggleFieldPermission('${state.activeContext}', '${f.id}')">
+            <div>
+              <div style="font-size:11px; font-weight:700; color:#475569;">${f.icon} ${f.label}</div>
+              <div style="font-size:12px; font-weight:600; color:#0f172a;">${f.value}</div>
+            </div>
+            <span class="chip ${isShared ? 'chip-blue' : ''}" style="${!isShared ? 'background:#e2e8f0; color:#64748b;' : ''}">
+              ${isShared ? 'Delas' : 'Dold'}
+            </span>
+          </div>
+        `;
+      }).join('');
+
+      return `
+        <div class="variant-b">
+          <!-- LEFT SIDEBAR (Fritidsbidraget #001f3f Deep Navy Admin Pattern) -->
+          <aside class="vb-sidebar">
+            <div>
+              <div class="vb-brand-box">
+                <div class="vb-brand-top">
+                  <span class="k-badge" style="width:32px; height:32px; font-size:16px; border-radius:10px;">K</span>
+                  <div>
+                    <div style="font-family:var(--font-Geometric); font-weight:800; font-size:16px; letter-spacing:-0.01em;">
+                      K for Contact
+                    </div>
+                    <div style="font-size:11px; color:#94a3b8;">NewSeed Platform</div>
+                  </div>
+                </div>
+                <span class="vb-micro-label">VARIANT B · CIVIC WORKSPACE</span>
+              </div>
+
+              <div style="margin-bottom:18px;">
+                <div style="font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.14em; color:#64748b; padding:0 8px 6px;">
+                  VÄLJ ARBETSLÄGE
+                </div>
+                <div class="vb-nav-list">
+                  <button class="vb-nav-item ${isClub ? 'active' : ''}" onclick="window.setContextMode('club')">
+                    <span>⚽ Förening &amp; Lag</span>
+                    <span style="font-family:var(--font-mono); font-size:11px;">P12</span>
+                  </button>
+                  <button class="vb-nav-item ${!isClub ? 'active' : ''}" onclick="window.setContextMode('corporate')">
+                    <span>💼 Företag &amp; B2B</span>
+                    <span style="font-family:var(--font-mono); font-size:11px;">PRO</span>
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <div style="font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.14em; color:#64748b; padding:0 8px 6px;">
+                  NAVIGERING
+                </div>
+                <div class="vb-nav-list">
+                  <button class="vb-nav-item active" style="background:rgba(255,255,255,0.1); box-shadow:none;">
+                    <span>📇 Kontakter &amp; Grupper</span>
+                    <span>${activeConns}</span>
+                  </button>
+                  <button class="vb-nav-item" onclick="window.cycleAvailability()">
+                    <span>🟢 Status / Frånvaro</span>
+                    <span>Ändra</span>
+                  </button>
+                  <button class="vb-nav-item" onclick="window.triggerFamilyToast('Экспорт: report.xlsx genererad (samma API som POST /v1/connection/{groupguid}/report)')">
+                    <span>📊 Exportera Excel (.xlsx)</span>
+                  </button>
+                  <button class="vb-nav-item" onclick="window.triggerFamilyToast('CSV Bulk Import öppnad med dubblett- och formatvalidering (_validateCSVData)')">
+                    <span>📥 CSV Medlemsimport</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div style="padding:12px; background:rgba(255,255,255,0.05); border-radius:12px; font-size:11px; color:#94a3b8; line-height:1.45;">
+              <strong style="color:#ffffff; display:block; margin-bottom:3px;">Inverterad GDPR</strong>
+              Du äger dina kontaktuppgifter. Föreningar och företag slipper manuell registervård.
+            </div>
+          </aside>
+
+          <!-- CENTER WORKSPACE (Fritidsbidraget + Katjing Admin Table & KPIs) -->
+          <section class="vb-main">
+            <div class="vb-top-bar">
+              <div>
+                <div style="font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.16em; color:var(--fb-royal);">
+                  ${isClub ? 'FÖRENINGSVY · LUNDS BK P12 (FÖRENINGSKOD: LUND2026)' : 'FÖRETAGSVY · NEWSEED IT SOLUTIONS AB'}
+                </div>
+                <h1 style="font-family:var(--font-Geometric); font-size:26px; font-weight:800; color:var(--fb-navy); margin-top:4px;">
+                  ${isClub ? 'Laglista, Föräldrar & Föreningskontakter' : 'Affärsnätverk, Konferensleads & Kundregister'}
+                </h1>
+              </div>
+              <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                <button class="katjing-btn secondary" style="border-radius:12px;" onclick="window.cycleAvailability()">
+                  ${STATUS_MAP[state.availability].label}
+                </button>
+              </div>
+            </div>
+
+            <!-- Fritidsbidraget-style #ebf5ff Info Callout -->
+            <div class="vb-trust-callout">
+              <div>
+                <strong>🔒 Automatisk synkronisering aktiv:</strong> När du uppdaterar telefonnummer eller e-post i högerpanelen slår ändringen igenom direkt hos samtliga ${activeConns} mottagare nedan.
+              </div>
+              <span class="chip chip-blue" style="font-family:var(--font-mono);">PUT /v1/profile/{id}</span>
+            </div>
+
+            <!-- KPI Cards -->
+            <div class="vb-kpi-grid">
+              <div class="vb-kpi-card">
+                <div class="vb-kpi-label">AKTIVA K-KOPPLINGAR</div>
+                <div class="vb-kpi-value">${activeConns} st</div>
+                <div style="font-size:12px; color:#15803d; margin-top:4px; font-weight:600;">✓ 100% aktuella uppgifter</div>
+              </div>
+              <div class="vb-kpi-card">
+                <div class="vb-kpi-label">AKTIVT PROFILFILTER</div>
+                <div class="vb-kpi-value" style="color:var(--kfc-deep-cyan);">${sharedCount} / ${FIELDS.length} fält</div>
+                <div style="font-size:12px; color:#64748b; margin-top:4px;">Exponeras för ${isClub ? 'Fotbollslaget' : 'Företag'}</div>
+              </div>
+              <div class="vb-kpi-card">
+                <div class="vb-kpi-label">TILLFÄLLIGA QR-LÄNKAR</div>
+                <div class="vb-kpi-value" style="color:#b45309;">Utgår ${state.shareExpiry}</div>
+                <div style="font-size:12px; color:#64748b; margin-top:4px;">${state.singleUseQr ? 'Engångsskanning aktiv' : 'Flerskanning aktiv'}</div>
+              </div>
+            </div>
+
+            <!-- Master Roster / Connections Table -->
+            <div class="vb-table-card">
+              <div class="vb-table-header">
+                <div>
+                  <h2 style="font-size:16px; font-weight:800; color:var(--fb-navy);">
+                    Kontakter &amp; Grupper som lånar dina uppgifter
+                  </h2>
+                  <p style="font-size:12px; color:#64748b;">
+                    Klicka på "Återkalla (GDPR)" för att omedelbart radera dina uppgifter från mottagarens telefon/register.
+                  </p>
+                </div>
+              </div>
+              <table class="vb-table">
+                <thead>
+                  <tr>
+                    <th>Namn &amp; Roll</th>
+                    <th>Exponerat Filter</th>
+                    <th>Källa / Grupp</th>
+                    <th>Status</th>
+                    <th style="text-align:right;">Åtgärd</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${rowsHtml}
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- RIGHT INSPECTOR: LIVE PROFILE FILTER & QR STUDIO -->
+          <aside class="vb-inspector">
+            <div style="font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.15em; color:var(--kfc-deep-cyan); margin-bottom:4px;">
+              MITT DIGITALA K-KORT
+            </div>
+            <h3 style="font-size:18px; font-weight:800; color:var(--fb-navy); margin-bottom:12px;">
+              ${isClub ? '⚽ Filter: Fotbollslaget' : '💼 Filter: Arbetsprofil'}
+            </h3>
+
+            <div style="background:var(--fb-navy); color:#ffffff; border-radius:18px; padding:16px; text-align:center; margin-bottom:16px;">
+              <div style="width:128px; height:128px; margin:0 auto 10px; background:#fff; padding:8px; border-radius:14px;">
+                ${renderQrSvg('#003399')}
+              </div>
+              <div style="font-weight:700; font-size:14px;">link.kforcontact.com/share/8f9a</div>
+              <div style="font-size:11px; color:#93c5fd; margin-top:2px;">Skanna med kamera eller K for Contact</div>
+              <div style="display:flex; justify-content:center; gap:6px; margin-top:10px;">
+                <button class="katjing-btn secondary" style="padding:5px 10px; font-size:11px; border-radius:99px;"
+                        onclick="window.setShareExpiry(state.shareExpiry === '24h' ? '7d' : '24h')">
+                  ⏱️ ${state.shareExpiry}
+                </button>
+                <button class="katjing-btn secondary" style="padding:5px 10px; font-size:11px; border-radius:99px;"
+                        onclick="window.toggleSingleUse()">
+                  ${state.singleUseQr ? '✓ 1-gångs' : '1-gångs QR'}
+                </button>
+              </div>
+            </div>
+
+            <div style="font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.1em; color:#64748b; margin-bottom:8px;">
+              STYR VILKA FÄLT SOM DELAS (KLICKA):
+            </div>
+            ${inspectorFieldsHtml}
+          </aside>
+        </div>
+      `;
+    }
+
+    // =========================================================================
+    // VARIANT C: "CONTEXT-ADAPTIVE BENTO HUB" (NewSeed 2.0 Bento + Filter Matrix)
+    // =========================================================================
+    function renderVariantC() {
+      const isClub = state.activeContext === 'club';
+
+      const matrixRowsHtml = FIELDS.map(f => {
+        const cOn = state.filters.club[f.id];
+        const bOn = state.filters.corporate[f.id];
+        const tOn = state.filters.temp[f.id];
+        return `
+          <tr>
+            <td>
+              <div>${f.icon} ${f.label}</div>
+              <div style="font-size:11px; color:#64748b; font-weight:400;">${f.value}</div>
+            </td>
+            <td style="text-align:center;">
+              <button class="vc-matrix-toggle ${cOn ? 'on-club' : 'off'}"
+                      onclick="window.toggleFieldPermission('club', '${f.id}')"
+                      aria-label="Växla ${f.label} för Förening"></button>
+            </td>
+            <td style="text-align:center;">
+              <button class="vc-matrix-toggle ${bOn ? 'on-corp' : 'off'}"
+                      onclick="window.toggleFieldPermission('corporate', '${f.id}')"
+                      aria-label="Växla ${f.label} för Företag"></button>
+            </td>
+            <td style="text-align:center;">
+              <button class="vc-matrix-toggle ${tOn ? 'on-temp' : 'off'}"
+                      onclick="window.toggleFieldPermission('temp', '${f.id}')"
+                      aria-label="Växla ${f.label} för Tillfällig QR"></button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      const bentoCardsHtml = state.connections.map(c => {
+        const revoked = c.status === 'revoked';
+        return `
+          <div style="padding:14px; border-radius:16px; border:1px solid ${revoked ? '#fecaca' : '#e2e8f0'}; background:${revoked ? '#fef2f2' : '#f8fafc'}; display:flex; justify-content:space-between; align-items:center; gap:12px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span class="k-badge" style="background:${c.category === 'club' ? 'var(--katjing-forest)' : 'var(--kfc-indigo)'}">K</span>
+              <div>
+                <div style="font-weight:700; font-size:14px;">${c.name}</div>
+                <div style="font-size:12px; color:#64748b;">${c.role}</div>
+                <div style="font-size:11px; color:#0f766e; font-weight:600; margin-top:2px;">${c.syncedWith}</div>
+              </div>
+            </div>
+            <button class="katjing-btn secondary" style="padding:6px 12px; font-size:11px;" onclick="window.toggleConnectionRevoke('${c.id}')">
+              ${revoked ? 'Återställ' : 'Återkalla'}
+            </button>
+          </div>
+        `;
+      }).join('');
+
+      return `
+        <div class="variant-c">
+          <div class="vc-shell">
+            <!-- Top Floating Bar -->
+            <header class="vc-floating-nav">
+              <div style="display:flex; align-items:center; gap:12px;">
+                <span class="k-badge" style="width:40px; height:40px; font-size:20px; border-radius:14px;">K</span>
+                <div>
+                  <div style="font-family:var(--font-display); font-weight:800; font-size:19px;">
+                    K for Contact <span style="font-weight:500; font-size:13px; color:#64748b;">· Variant C (Bento Matrix Hub)</span>
+                  </div>
+                  <div style="font-size:12px; color:#475569;">
+                    Visar hur föräldrarollen och yrkesrollen samexisterar i samma vy utan att blanda ihop data.
+                  </div>
+                </div>
+              </div>
+
+              <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                <button class="katjing-btn ${isClub ? 'primary-club' : 'secondary'}" onclick="window.setContextMode('club')">
+                  ⚽ Fokus: Föreningsliv
+                </button>
+                <button class="katjing-btn ${!isClub ? 'primary-corp' : 'secondary'}" onclick="window.setContextMode('corporate')">
+                  💼 Fokus: Näringsliv
+                </button>
+              </div>
+            </header>
+
+            <!-- BENTO GRID -->
+            <div class="vc-bento-grid">
+              <!-- CELL 1: INTERACTIVE PRIVACY & PROFILE MATRIX (7 cols) -->
+              <section class="vc-cell vc-span-7">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap;">
+                  <div>
+                    <span class="chip chip-blue">INTERAKTIV FILTERMATRIS (GET/POST /v1/filter)</span>
+                    <h2 style="font-family:var(--font-display); font-size:22px; font-weight:800; margin-top:6px;">
+                      Styr exakt vem som ser vad i realtid
+                    </h2>
+                    <p style="font-size:13px; color:#475569; margin-top:2px;">
+                      Slå på eller av vilka rader som delas med <strong>Fotbollslaget</strong>, <strong>Konferenskontakter</strong> eller <strong>Tillfällig QR</strong>.
+                    </p>
+                  </div>
+                </div>
+
+                <table class="vc-matrix">
+                  <thead>
+                    <tr>
+                      <th>Kontaktuppgift (Ägs av dig)</th>
+                      <th style="color:var(--katjing-forest);">⚽ Fotbollslag</th>
+                      <th style="color:var(--kfc-deep-cyan);">💼 Företag</th>
+                      <th style="color:var(--kfc-violet);">⏱️ Tillfällig</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${matrixRowsHtml}
+                  </tbody>
+                </table>
+              </section>
+
+              <!-- CELL 2: INSTANT QR & TEMPORARY SHARE STUDIO (5 cols) -->
+              <section class="vc-cell vc-span-5" style="background: ${isClub ? 'linear-gradient(155deg, #1b3b22 0%, #4f6d32 100%)' : 'linear-gradient(155deg, #001f3f 0%, #3e5dbc 60%, #30a4dc 100%)'}; color:#ffffff; display:flex; flex-direction:column; justify-content:space-between;">
+                <div>
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                    <span class="va-pass-pill">QR &amp; TILLFÄLLIG DELNING</span>
+                    <span class="va-pass-pill">${isClub ? '⚽ Lagkort' : '💼 Visitkort'}</span>
+                  </div>
+                  <h2 style="font-family:var(--font-display); font-size:22px; font-weight:800;">
+                    Dela med ett tryck
+                  </h2>
+                  <p style="font-size:13px; opacity:0.9; margin-top:4px;">
+                    Perfekt vid föräldramötet i klubbstugan eller vid mässmontern.
+                  </p>
+
+                  <div style="background:#ffffff; color:#0f172a; border-radius:20px; padding:18px; margin:16px 0; display:flex; align-items:center; gap:16px;">
+                    <div style="width:108px; height:108px; flex-shrink:0;">
+                      ${renderQrSvg(isClub ? '#4f6d32' : '#3e5dbc')}
+                    </div>
+                    <div>
+                      <div style="font-weight:800; font-size:16px; font-family:var(--font-display);">Mats Lind</div>
+                      <div style="font-size:12px; color:#475569; margin-bottom:8px;">
+                        ${isClub ? 'Förälder P12 · Lunds BK' : 'Utvecklare · NewSeed IT Solutions'}
+                      </div>
+                      <span class="chip ${state.shareExpiry === 'permanent' ? 'chip-green' : 'chip-amber'}">
+                        Giltig: ${state.shareExpiry}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <div style="font-size:12px; opacity:0.9; margin-bottom:8px; font-weight:600;">
+                    Statusnotering: ${STATUS_MAP[state.availability].label}
+                  </div>
+                  <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                    <button class="katjing-btn secondary" style="font-size:12px;" onclick="window.setShareExpiry(state.shareExpiry === '24h' ? '1h' : '24h')">
+                      ⏱️ Utgår om: ${state.shareExpiry}
+                    </button>
+                    <button class="katjing-btn secondary" style="font-size:12px;" onclick="window.cycleAvailability()">
+                      Byt Status ↻
+                    </button>
+                  </div>
+                </div>
+              </section>
+
+              <!-- CELL 3: ACTIVE CONNECTIONS & REVOCATION (7 cols) -->
+              <section class="vc-cell vc-span-7">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                  <div>
+                    <span class="chip chip-green">LIVE-SYNKADE MOTTAGARE</span>
+                    <h3 style="font-family:var(--font-display); font-size:19px; font-weight:800; margin-top:4px;">
+                      Föreningsgrupper &amp; Affärskontakter
+                    </h3>
+                  </div>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr; gap:10px;">
+                  ${bentoCardsHtml}
+                </div>
+              </section>
+
+              <!-- CELL 4: FAMILY BRIDGE (KATJING + FRITIDSBIDRAGET + PWA) (5 cols) -->
+              <section class="vc-cell vc-span-5" style="background:var(--katjing-bg); border-color:var(--katjing-border);">
+                <span class="chip" style="background:var(--katjing-gold); color:#1e293b;">FAMILJEKOPPLING &amp; PWA</span>
+                <h3 style="font-family:var(--font-display); font-size:19px; font-weight:800; margin-top:8px;">
+                  Så hänger de tre apparna ihop
+                </h3>
+                <ul style="margin-top:12px; padding-left:18px; font-size:13px; color:#334155; line-height:1.65;">
+                  <li><strong>Från Katjing:</strong> Varma ytor (<code>#faf9f5</code>), <code>Bricolage Grotesque</code> + <code>Public Sans</code>, skoggrön föreningsaccent (<code>#4f6d32</code>) och QR-kortsflöde.</li>
+                  <li><strong>Från Fritidsbidraget:</strong> Hög-tillits marinblå struktur (<code>#001f3f</code> / <code>#003399</code>), tydliga GDPR-rutor och <code>Föreningskod</code>-koppling.</li>
+                  <li><strong>Från K for Contact:</strong> Signatur-cyan/indigo (<code>#30a4dc</code> → <code>#3e5dbc</code>), <code>K</code>-synksymbolen och kontextstyrda profilfilter.</li>
+                </ul>
+                <div style="margin-top:16px; padding:12px; border-radius:14px; background:#ffffff; border:1px solid var(--katjing-border);">
+                  <div style="font-weight:700; font-size:13px; margin-bottom:4px;">📲 Standalone PWA-läge (iOS &amp; Android)</div>
+                  <p style="font-size:12px; color:#475569; margin-bottom:8px;">
+                    Testa hur appen ser ut som installerad hemskärmsapp genom knappen i toppen!
+                  </p>
+                  <button class="katjing-btn primary-club" style="width:100%;" onclick="window.toggleViewportMode()">
+                    ${state.viewportMode === 'pwa-mobile' ? 'Återgå till bred webbvy' : 'Förhandsgranska som installerad Mobil-PWA'}
+                  </button>
+                </div>
+              </section>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // =========================================================================
+    // MASTER RENDER & FLOATING SWITCHER WIRING
+    // =========================================================================
+    function renderAll() {
+      renderTelemetry();
+
+      const wrapper = document.getElementById('viewport-wrapper');
+      wrapper.className = `viewport-wrapper ${state.viewportMode === 'pwa-mobile' ? 'pwa-mobile' : ''}`;
+
+      const root = document.getElementById('app-root');
+      if (state.variant === 'A') {
+        root.innerHTML = renderVariantA();
+      } else if (state.variant === 'B') {
+        root.innerHTML = renderVariantB();
+      } else {
+        root.innerHTML = renderVariantC();
+      }
+
+      // Update floating switcher label & active pill
+      const vInfo = VARIANTS[state.variant];
+      document.getElementById('switcher-title').textContent = `${vInfo.key} (${vInfo.name})`;
+      document.getElementById('switcher-subtitle').textContent = `?variant=${vInfo.key} · Använd ← / → piltangenter`;
+
+      document.querySelectorAll('.switcher-pill-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.variant === state.variant);
+      });
+    }
+
+    function cycleVariant(delta) {
+      const keys = Object.keys(VARIANTS);
+      const idx = (keys.indexOf(state.variant) + delta + keys.length) % keys.length;
+      window.setVariant(keys[idx]);
+    }
+
+    document.getElementById('btn-prev').addEventListener('click', () => cycleVariant(-1));
+    document.getElementById('btn-next').addEventListener('click', () => cycleVariant(1));
+    document.querySelectorAll('.switcher-pill-btn').forEach(btn => {
+      btn.addEventListener('click', () => window.setVariant(btn.dataset.variant));
+    });
+
+    // Keyboard navigation per .agents/skills/prototype/UI.md
+    window.addEventListener('keydown', (e) => {
+      const tag = document.activeElement?.tagName?.toLowerCase();
+      if (tag === 'input' || tag === 'textarea' || document.activeElement?.isContentEditable) {
+        return;
+      }
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        cycleVariant(-1);
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        cycleVariant(1);
+      }
+    });
+
+    // Initial render
+    renderAll();
+  </script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+# Dependencies & build
+node_modules/
+dist/
+
+# OS & Editor
+.DS_Store
+Thumbs.db
+*.log
+.env
+.env.*
+
+# Local AI Agent & Skills configuration (keep local, do not push)
+.agents/
+.claude/
+.claude-plugin/
+.out-of-scope/
+skills/
+scripts/
+skills-lock.json
+CLAUDE.md
+CONTEXT.md
+LICENSE
+README.md
+docs/adr/
